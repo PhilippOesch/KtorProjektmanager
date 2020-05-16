@@ -1,31 +1,27 @@
 package com.example
 
+
 import com.example.general.SaltHash
 import com.example.general.hexStringToByteArray
 import com.example.general.toHexString
-import com.sun.org.apache.xerces.internal.impl.dv.xs.HexBinaryDV
+import com.example.models.*
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.http.*
-import io.ktor.html.*
 import kotlinx.html.*
 import kotlinx.css.*
 import freemarker.cache.*
 import io.ktor.freemarker.*
-import io.ktor.content.*
 import io.ktor.http.content.*
 import io.ktor.sessions.*
 import io.ktor.features.*
 import io.ktor.auth.*
 import io.ktor.gson.*
-import io.ktor.html.insert
-import io.ktor.utils.io.core.toByteArray
-import org.jetbrains.exposed.dao.id.IntIdTable
+import com.example.models.Users
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.nio.charset.Charset
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -43,18 +39,23 @@ fun Application.module(testing: Boolean = false) {
 
     install(Authentication) {
         form("login") {
+            skipWhen { call -> call.sessions.get<MySession>() != null }
             userParamName = "email"
             passwordParamName = "password"
             challenge{
-                call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
+                if(call.sessions.get<MySession>() == null){
+                    call.respond(FreeMarkerContent("login.ftl", null))
+                } else {
+                    call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
+                }
             }
             validate { credentials ->
                 val users = transaction {
                     Users.select { Users.email eq credentials.name }.map { Users.toAuth(it) }
                 }
                 val thishash= SaltHash.generateHash(credentials.password, users.first().salt.hexStringToByteArray())
-                println(thishash)
-                println(users.first().password)
+/*                println(thishash)
+                println(users.first().password)*/
                 if (thishash == users.first().password) {
                     UserIdPrincipal(credentials.name)
                 } else {
@@ -76,16 +77,6 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-
-        get("/") {
-            val session = call.sessions.get<MySession>()
-            if (session != null) {
-                //call.respondText("User is logged", null)
-                call.respond(FreeMarkerContent("index.ftl", mapOf("username" to session.fullname)))
-            } else {
-                call.respond(FreeMarkerContent("index.ftl", null))
-            }
-        }
 
         // Static feature. Try to access `/static/ktor_logo.svg`
         static("/static") {
@@ -117,21 +108,6 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        route("/user"){
-            get{
-                val users = transaction {
-                    Users.selectAll().map { Users.toUser(it)}
-                }
-                call.respond(users);
-            }
-        }
-
-        get("/logout"){
-            call.sessions.clear<MySession>()
-            call.respondRedirect("/", permanent = false)
-        }
-
-
         route("/login") {
             get {
                 call.respond(FreeMarkerContent("login.ftl", null))
@@ -149,8 +125,40 @@ fun Application.module(testing: Boolean = false) {
 
         }
 
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
+        authenticate("login") {
+            route("/user"){
+                get{
+                    val users = transaction {
+                        Users.selectAll().map { Users.toUser(it)}
+                    }
+                    call.respond(users);
+                }
+
+                get("/{id}"){
+                    val id= call.parameters["id"]!!.toString();
+                    val users = transaction {
+                        Users.select { Users.email eq id}.map { Users.toUser(it) }
+                    }
+                    call.respond(users)
+                }
+            }
+
+            get("/") {
+                val session = call.sessions.get<MySession>()
+
+                if (session != null) {
+                    println(session.fullname);
+                    //call.respondText("models.kt.User is logged", null)
+                    call.respond(FreeMarkerContent("index.ftl", mapOf("data" to session)))
+                } else {
+                    call.respond(FreeMarkerContent("index.ftl", null))
+                }
+            }
+
+            get("/logout"){
+                call.sessions.clear<MySession>()
+                call.respondRedirect("/", permanent = false)
+            }
         }
 
         install(StatusPages) {
@@ -165,36 +173,6 @@ fun Application.module(testing: Boolean = false) {
         
     }
 }
-
-data class IndexData(val items: List<Int>)
-
-data class MySession(val fullname: String, val email: String)
-
-data class User(val email: String, val name: String)
-
-data class AuthObject(val password: String, val salt: String)
-
-object Users: Table(){
-    val email: Column<String> = varchar("email", 50)
-    val name: Column<String> = varchar("name", 100)
-    val salt: Column<String> = varchar("salt", 20)
-    val password: Column<String> = varchar("password", 100)
-
-    override val primaryKey= PrimaryKey(email, name="PK_User_ID");
-
-    fun toUser(row: ResultRow): User =
-        User(
-            name = row[Users.name],
-            email = row[Users.email]
-        )
-
-    fun toAuth(row: ResultRow): AuthObject=
-        AuthObject(
-            password = row[Users.password],
-            salt = row[Users.salt]
-        )
-}
-
 
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()
