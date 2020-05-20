@@ -97,11 +97,12 @@ fun Application.module(testing: Boolean = false) {
                         Users.insert {
                             it[Users.email] = post["email"].toString()
                             it[Users.name]= post["name"].toString()
+                            it[Users.biography]= ""
                             it[Users.salt]= salt.toHexString()
                             it[Users.password]= hashedPassword
                         }
                     }
-                    call.respondText("OK")
+                    call.respondRedirect("/login", permanent = false)
                 } else {
                     call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
                 }
@@ -134,12 +135,34 @@ fun Application.module(testing: Boolean = false) {
                     call.respond(users);
                 }
 
-                get("/{id}"){
-                    val id= call.parameters["id"]!!.toString();
-                    val users = transaction {
-                        Users.select { Users.email eq id}.map { Users.toUser(it) }
+                route("/{id}"){
+                    get{
+                        val session = call.sessions.get<MySession>()
+                        val id = call.parameters["id"]!!.toString()
+                        if(session!= null && session.email== id) {
+                            val users = transaction {
+                                Users.select { Users.email eq id }.map { Users.toUser(it) }
+                            }
+                            call.respond(FreeMarkerContent("user.ftl", mapOf("data" to users.first())))
+                        } else {
+                            call.respond("insufficient authorization")
+                        }
                     }
-                    call.respond(users)
+
+                    post{
+                        val session = call.sessions.get<MySession>()
+                        val id = call.parameters["id"]!!.toString()
+                        val post = call.receiveParameters()
+                        if(session!= null){
+                            transaction {
+                                Users.update({ Users.email eq id }) {
+                                    it[Users.name] = post["fullname"].toString()
+                                    it[Users.biography] = post["biography"].toString()
+                                }
+                            }
+                            call.respondRedirect("/user/${id}", permanent = true)
+                        }
+                    }
                 }
             }
 
@@ -147,7 +170,7 @@ fun Application.module(testing: Boolean = false) {
                 val session = call.sessions.get<MySession>()
 
                 if (session != null) {
-                    println(session.fullname);
+                    println(session.name);
                     //call.respondText("models.kt.User is logged", null)
                     call.respond(FreeMarkerContent("index.ftl", mapOf("data" to session)))
                 } else {
@@ -159,6 +182,7 @@ fun Application.module(testing: Boolean = false) {
                 call.sessions.clear<MySession>()
                 call.respondRedirect("/", permanent = false)
             }
+
         }
 
         install(StatusPages) {
