@@ -29,46 +29,55 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    //initialise Ktor Features
+
+    //Templating Engine
     install(FreeMarker) {
         templateLoader = ClassTemplateLoader(this::class.java.classLoader, "templates")
     }
 
+    //Session management
     install(Sessions) {
         cookie<MySession>("SESSION")
     }
 
+    //Authentication Feature
     install(Authentication) {
         form("login") {
             skipWhen { call -> call.sessions.get<MySession>() != null }
             userParamName = "email"
             passwordParamName = "password"
             challenge{
-                if(call.sessions.get<MySession>() == null){
-                    call.respond(FreeMarkerContent("login.ftl", null))
-                } else {
                     call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
-                }
             }
             validate { credentials ->
-                val users = transaction {
-                    Users.select { Users.email eq credentials.name }.map { Users.toAuth(it) }
-                }
-                val thishash= SaltHash.generateHash(credentials.password, users.first().salt.hexStringToByteArray())
+                try {
+                    val users = transaction {
+                        Users.select { Users.email eq credentials.name }.map { Users.toAuth(it) }
+                    }
+
+                    val thishash =
+                        SaltHash.generateHash(credentials.password, users.first().salt.hexStringToByteArray())
 /*                println(thishash)
                 println(users.first().password)*/
-                if (thishash == users.first().password) {
-                    UserIdPrincipal(credentials.name)
-                } else {
+                    if (thishash == users.first().password) {
+                        UserIdPrincipal(credentials.name)
+                    } else {
+                        null
+                    }
+                } catch(ex: NoSuchElementException) /* catches Exception when there is no entry for this email */{
                     null
                 }
             }
         }
     }
 
+/*
     install(ContentNegotiation) {
         gson {
         }
     }
+*/
 
     Database.connect("jdbc:postgresql://localhost:5432/projektmanager", driver = "org.postgresql.Driver",
         user = "postgres", password = "123456")
@@ -104,7 +113,7 @@ fun Application.module(testing: Boolean = false) {
                     }
                     call.respondRedirect("/login", permanent = false)
                 } else {
-                    call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
+                    call.respond(FreeMarkerContent("signup.ftl", mapOf("error" to "Invalid login")))
                 }
             }
         }
