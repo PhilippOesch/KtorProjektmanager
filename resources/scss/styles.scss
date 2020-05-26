@@ -42,8 +42,8 @@ nav {
   }
 }
 
-.show-profil-info{
-  &:hover{
+.show-profil-info {
+  &:hover {
     cursor: pointer;
   }
 }
@@ -66,7 +66,7 @@ nav {
     right: 1.5rem;
     @include transition(all $transition-time);
 
-    &:hover{
+    &:hover {
       color: rgba($font-color, 0.6);
       cursor: pointer;
     }
@@ -94,7 +94,7 @@ nav {
       color: rgba($font-color, 0.6);
     }
 
-    &:last-child{
+    &:last-child {
       margin: 0.5rem 0rem 0rem 0rem;
       font-weight: 600;
     }
@@ -114,51 +114,62 @@ nav {
     grid-column-gap: 1rem;
     grid-row-gap: 1rem;
 
-    .projekt-item {
-      background-color: white;
-      height: 150px;
-      border-radius: 5px;
-      //@include boxshadow(1px 20px 30px 0px rgba(0,0,0,0.1));
-      @include boxshadow(1px 3px 16px 0px rgba($box-shadow-color, 0.15));
-      border: 1px solid rgba($box-shadow-color, 0.15);
-      background-color: $projekt-item2-color;
-      @include transition(all $transition-time);
+    a {
+      display: block;
+      text-decoration: none;
+      padding: 0;
 
-      h2 {
-        font-size: 16pt;
-        font-weight: 400;
+      .projekt-item {
+        background-color: white;
+        height: 150px;
+        border-radius: 5px;
         margin: 0;
-        padding: 1rem 1rem;
-        color: #ffffff;
-      }
+        width: 100%;
+        //@include boxshadow(1px 20px 30px 0px rgba(0,0,0,0.1));
+        @include boxshadow(1px 3px 16px 0px rgba($box-shadow-color, 0.15));
+        border: 1px solid rgba($box-shadow-color, 0.15);
+        background-color: $projekt-item2-color;
+        @include transition(all $transition-time);
 
-      &:nth-child(odd) {
-        background-color: $projekt-item1-color;
-      }
+        h2 {
+          font-size: 16pt;
+          font-weight: 400;
+          margin: 0;
+          padding: 1rem 1rem;
+          color: #ffffff;
+        }
 
-      &.new-project {
-        background-color: #ffffff;
-        display: table;
+        &.new-project {
+          background-color: #ffffff !important;
+          display: table;
 
-        .table-cell {
-          display: table-cell;
-          vertical-align: middle;
-          text-align: center;
+          .table-cell {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
 
-          h2 {
-            color: $font-color;
-            font-size: 16pt;
+            h2 {
+              color: $font-color;
+              font-size: 16pt;
 
-            &:first-child {
-              padding-bottom: 0;
+              &:first-child {
+                padding-bottom: 0;
+              }
             }
           }
         }
+
+        &:hover {
+          transform: scale(1.05);
+          @include boxshadow(1px 6px 32px 0px rgba($box-shadow-color, 0.15));
+        }
       }
 
-      &:hover {
-        transform: scale(1.05);
-        @include boxshadow(1px 6px 32px 0px rgba($box-shadow-color, 0.15));
+      &:nth-child(odd) {
+
+        .projekt-item {
+          background-color: $projekt-item1-color;
+        }
       }
     }
   }
@@ -169,18 +180,19 @@ nav {
   max-width: 500px;
   font-size: 12pt;
 
-  .email-display{
+  .email-display {
     margin-bottom: 1rem;
-    span{
+
+    span {
       display: inline-block;
       font-size: 14pt;
     }
 
-    .title{
+    .title {
       padding-left: 1rem;
     }
 
-    .content{
+    .content {
       font-weight: 600;
       padding-left: 0.5rem;
       text-align: center;
@@ -233,7 +245,7 @@ nav {
       }
     }
 
-    textarea{
+    textarea {
       width: 100%;
       border: 2px solid #888888;
       border-radius: 5px;
@@ -244,7 +256,7 @@ nav {
       margin-top: 3.2px;
     }
 
-    .display-none{
+    .display-none {
       display: none;
     }
   }

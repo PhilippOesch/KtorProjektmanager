@@ -3,8 +3,8 @@
     <#include "partials/headerdata.ftl">
     <title>Home</title>
 </head>
-<#include "partials/menu.ftl">
 <body>
+<#include "partials/menu.ftl">
 <div class="container login-container">
     <h1>${data.name}</h1>
     <hr>
