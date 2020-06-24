@@ -2,6 +2,7 @@ package com.example
 
 
 import com.example.Routes.*
+import com.example.database.config
 import com.example.general.SaltHash
 import com.example.general.hexStringToByteArray
 import com.example.models.*
@@ -18,6 +19,7 @@ import io.ktor.sessions.*
 import io.ktor.features.*
 import io.ktor.auth.*
 import com.example.models.Users
+import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import user
@@ -79,12 +81,16 @@ fun Application.module(testing: Boolean = false) {
     }
 */
 
+    val dataSource = HikariDataSource(config)
     Database.connect(
-        "jdbc:postgresql://localhost:5432/projektmanager", driver = "org.postgresql.Driver",
-        user = "postgres", password = "123456"
+        dataSource
     )
     transaction {
         SchemaUtils.create(Users)
+        SchemaUtils.create(Projects)
+        SchemaUtils.create(ProjectUsers)
+        SchemaUtils.create(Tasks)
+        SchemaUtils.create(TasksUser)
     }
 
     routing {
@@ -101,7 +107,10 @@ fun Application.module(testing: Boolean = false) {
         this.root()
         this.logout()
         this.createProjekt()
-/*
+        this.project()
+        this.task()
+
+        //Exceptionhandling
         install(StatusPages) {
             exception<AuthenticationException> { cause ->
                 call.respond(HttpStatusCode.Unauthorized)
@@ -109,7 +118,7 @@ fun Application.module(testing: Boolean = false) {
             exception<AuthorizationException> { cause ->
                 call.respond(HttpStatusCode.Forbidden)
             }
-        }*/
+        }
 
     }
 }

@@ -4,14 +4,14 @@
     <title>Signup</title>
 </head>
 <body>
-<div class="container login-container">
+<div class="container form-container">
     <#if error??>
         <p style="color:red;">${error}</p>
     </#if>
     <h1>Registrierung</h1>
     <form action="/signup" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
-            <lable>Email:</lable>
+            <label>Email:</label>
             <input type="email" name="email"/>
         </div>
         <div class="form-group">

@@ -5,7 +5,7 @@
 </head>
 <body>
 <#include "partials/menu.ftl">
-<div class="container login-container">
+<div class="container form-container">
     <h1>${data.name}</h1>
     <hr>
     <form action="/user/${data.email}" method="post" enctype="application/x-www-form-urlencoded" id="updateUserForm">

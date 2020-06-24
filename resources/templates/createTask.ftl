@@ -5,21 +5,19 @@
 </head>
 <body>
 <#include "partials/menu.ftl">
+<body>
 <div class="container form-container">
-    <h1>Projekt erstellen</h1>
-    <#if error??>
-        <p style="color:red;">${error}</p>
-    </#if>
-    <form action="/createProjekt" method="post" enctype="application/x-www-form-urlencoded" id="createProjectFrom">
+    <h1>Aufgabe erstellen</h1>
+    <form action="/project/${projectId}/createtask" method="post" enctype="application/x-www-form-urlencoded" id="createTaskFrom">
         <div class="form-group">
             <label>Name:</label>
             <input type="text" name="name" required/>
         </div>
         <div class="form-group">
             <label>Beschreibung:</label>
-            <textarea form="createProjectFrom" type="text" name="description"></textarea>
+            <textarea form="createTaskFrom" type="text" name="description"></textarea>
         </div>
-        <input type="submit" value="Projekt Erstellen"/>
+        <input type="submit" value="Aufgabe erstellen"/>
     </form>
 </div>
 <script src="/static/scripts.js"></script>

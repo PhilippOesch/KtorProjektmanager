@@ -13,6 +13,7 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @ExperimentalStdlibApi
@@ -23,7 +24,14 @@ fun Routing.signup(){
         }
         post{
             val post = call.receiveParameters()
-            if(post["password"]!= null && post["password"]== post["confirmPassword"]){
+
+            val users= transaction {
+                Users.select{ Users.email eq post["email"].toString()}.map { Users.toUser(it) }
+            }
+
+            if(users.isNotEmpty()){
+                call.respond("User already exists")
+            } else if(post["password"]!= null && post["password"]== post["confirmPassword"]){
                 var salt: ByteArray= SaltHash.createSalt();
                 var hashedPassword: String= SaltHash.generateHash(post["password"].toString(), salt)
 
@@ -36,7 +44,7 @@ fun Routing.signup(){
                         it[password] = hashedPassword
                     }
                 }
-                call.respondRedirect("/login", permanent = false)
+                call.respondRedirect("/login", permanent = true)
             } else {
                 call.respond(
                     FreeMarkerContent(

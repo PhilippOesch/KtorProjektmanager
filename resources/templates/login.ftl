@@ -4,7 +4,7 @@
     <title>Login</title>
 </head>
 <body>
-<div class="container login-container">
+<div class="container form-container">
     <h1>Login</h1>
     <#if error??>
         <p style="color:red;">${error}</p>
