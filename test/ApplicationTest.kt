@@ -20,6 +20,7 @@ import kotlin.test.*
 import io.ktor.server.testing.*
 
 class ApplicationTest {
+    @ExperimentalStdlibApi
     @Test
     fun testRoot() {
         withTestApplication({ module(testing = true) }) {

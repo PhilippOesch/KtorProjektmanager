@@ -21,6 +21,8 @@ data class ProjectUser(val projectId: Int, val userId: String)
 
 data class Task(val id: Int, val name: String, val description: String, val pId: Int, val status: TaskStatus)
 
+data class TaskWithUsers(val task: Task, val users: List<User>?)
+
 data class TaskUser(val id: Int, val taskId: Int, val userId: String)
 
 data class AuthObject(val password: String, val salt: String)
@@ -103,7 +105,7 @@ object Tasks: Table(){
     }
 }
 
-object TasksUser: Table(){
+object TasksUsers: Table(){
     val id: Column<Int> = integer("id").autoIncrement()
     val taskId: Column<Int> = integer("taskid").references(Tasks.id)
     val userId: Column<String> = varchar("userid", 50).references(Users.email)

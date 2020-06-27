@@ -1,10 +1,11 @@
 package com.example.Routes
 
-import com.example.enums.TaskStatus
+import com.example.database.DatabaseObject
 import com.example.models.*
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.freemarker.FreeMarkerContent
+import io.ktor.http.parseRangesSpecifier
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
@@ -14,10 +15,6 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.and
 
 fun Routing.project() {
     authenticate("login") {
@@ -26,22 +23,24 @@ fun Routing.project() {
                 val session = call.sessions.get<MySession>()
 
                 val id = call.parameters["id"]!!.toInt()
-                val projects = transaction {
-                    Projects.select { Projects.id eq id }.map { Projects.toProject(it) }
-                }
-                val users = transaction {
-                    ProjectUsers.join(Users, JoinType.INNER, additionalConstraint = { ProjectUsers.projectId eq id })
-                        .selectAll().map { Users.toUser(it) }
-                }
+                val project= DatabaseObject.getProject(id)
+                val users = DatabaseObject.getProjectUsers(id)
+                val tasks = DatabaseObject.getProjectTasks(id)
 
-                val tasks= transaction {
-                    Tasks.select { Tasks.pid eq id }.map { Tasks.toTask(it) }
+                val taskWithUsers = mutableListOf<TaskWithUsers>()
+                if(tasks.isNotEmpty()){
+                    for(task in tasks){
+                        val taskID= task.id
+                        val users= DatabaseObject.getTasksUsers(taskID)
+
+                        taskWithUsers.add(TaskWithUsers(task, users))
+                    }
                 }
 
                 if (session != null && tasks.isNotEmpty()) {
-                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to projects.first(), "users" to users, "tasks" to tasks)))
+                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users, "tasks" to taskWithUsers)))
                 } else if(session != null){
-                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to projects.first(), "users" to users)))
+                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users)))
                 }
             }
 
@@ -50,21 +49,7 @@ fun Routing.project() {
                 val post = call.receiveParameters()
                 val session = call.sessions.get<MySession>()
 
-                transaction {
-                    val users= Users.select { Users.email eq post["email"].toString() }.map { Users.toUser(it) }
-
-                    val projectUser= ProjectUsers.select{ ProjectUsers.projectId eq id and (ProjectUsers.userId eq post["email"].toString()) }.map{
-                        ProjectUsers.toProjectUser(it)
-                    }
-
-                    if(users.isNotEmpty() && projectUser.isEmpty() ){
-                        ProjectUsers.insert {
-                            it[projectId]= id
-                            it[userId]= post["email"].toString()
-                        }
-                    }
-                }
-
+                DatabaseObject.addUsertoProject(id, post["email"].toString())
 
                 call.respondRedirect("/project/${id}", permanent = true)
             }
@@ -84,14 +69,7 @@ fun Routing.project() {
                 val id = call.parameters["id"]!!.toInt()
                 val post = call.receiveParameters()
 
-                transaction {
-                    Tasks.insert {
-                        it[name]= post["name"].toString()
-                        it[description]= post["description"].toString()
-                        it[status]= TaskStatus.OPEN.statustype
-                        it[pid]= id
-                    }
-                }
+                DatabaseObject.addNewTask(id, post["name"].toString(), post["description"].toString())
 
                 call.respondRedirect("/project/${id}", permanent = true)
             }

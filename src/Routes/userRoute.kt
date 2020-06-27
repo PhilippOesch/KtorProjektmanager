@@ -1,3 +1,4 @@
+import com.example.database.DatabaseObject
 import com.example.models.MySession
 import com.example.models.Users
 import io.ktor.application.call
@@ -12,11 +13,9 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
 fun Routing.user(){
 
@@ -54,12 +53,7 @@ fun Routing.user(){
                     val id = call.parameters["id"]!!.toString()
                     val post = call.receiveParameters()
                     if (session != null) {
-                        transaction {
-                            Users.update({ Users.email eq id }) {
-                                it[name] = post["fullname"].toString()
-                                it[biography] = post["biography"].toString()
-                            }
-                        }
+                        DatabaseObject.updateUser(id, post["fullname"].toString(), post["biography"].toString())
                         call.respondRedirect("/user/${id}", permanent = true)
                     }
                 }

@@ -1,5 +1,6 @@
 package com.example.Routes
 
+import com.example.database.DatabaseObject
 import com.example.general.SaltHash
 import com.example.general.toHexString
 import com.example.models.Users
@@ -24,26 +25,18 @@ fun Routing.signup(){
         }
         post{
             val post = call.receiveParameters()
+            val user= DatabaseObject.getUser(post["email"].toString());
 
-            val users= transaction {
-                Users.select{ Users.email eq post["email"].toString()}.map { Users.toUser(it) }
-            }
-
-            if(users.isNotEmpty()){
-                call.respond("User already exists")
+            if(user!= null){
+                call.respond(
+                    FreeMarkerContent(
+                        "signup.ftl",
+                        mapOf("error" to "Email ist bereits vorhanden")
+                    )
+                )
             } else if(post["password"]!= null && post["password"]== post["confirmPassword"]){
-                var salt: ByteArray= SaltHash.createSalt();
-                var hashedPassword: String= SaltHash.generateHash(post["password"].toString(), salt)
+                DatabaseObject.createUser(post["email"].toString(), post["name"].toString(), post["password"].toString())
 
-                transaction {
-                    Users.insert {
-                        it[email] = post["email"].toString()
-                        it[name] = post["name"].toString()
-                        it[biography] = ""
-                        it[com.example.models.Users.salt] = salt.toHexString()
-                        it[password] = hashedPassword
-                    }
-                }
                 call.respondRedirect("/login", permanent = true)
             } else {
                 call.respond(

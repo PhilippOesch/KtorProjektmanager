@@ -1,6 +1,7 @@
 package com.example.Routes
 
 import com.example.AuthorizationException
+import com.example.database.DatabaseObject
 import com.example.models.MySession
 import com.example.models.ProjectUsers
 import com.example.models.Projects
@@ -22,18 +23,9 @@ fun Routing.root() {
         get("/") {
             val session = call.sessions.get<MySession>()
 
-/*                    val projects= transaction {
-                        Projects.selectAll().map { Projects.toProject(it) }
-                    }*/
-
             if (session != null) {
-                val projects = transaction {
-                    ProjectUsers.join(
-                        Projects,
-                        JoinType.INNER,
-                        additionalConstraint = { ProjectUsers.userId eq session.email }).selectAll().map { Projects.toProject(it) }
+                val projects= DatabaseObject.getUsersProjects(session.email);
 
-                }
                 println(session.name);
                 //call.respondText("models.kt.User is logged", null)
                 call.respond(FreeMarkerContent("index.ftl", mapOf("data" to session, "projects" to projects)))

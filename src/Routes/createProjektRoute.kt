@@ -1,5 +1,6 @@
 package com.example.Routes
 
+import com.example.database.DatabaseObject
 import com.example.models.MySession
 import com.example.models.ProjectUsers
 import com.example.models.Projects
@@ -39,17 +40,7 @@ fun Routing.createProjekt() {
 
                 val post = call.receiveParameters()
                 if (session != null) {
-                    transaction {
-                        val pId = Projects.insert {
-                            it[name] = post["name"].toString()
-                            it[description] = post["description"].toString()
-                        } get Projects.id
-
-                        ProjectUsers.insert {
-                            it[projectId] = pId
-                            it[userId] = session.email
-                        }
-                    }
+                    DatabaseObject.createProject(post["name"].toString(), post["description"].toString(), session.email)
                 }
                 call.respondRedirect("/", permanent = true)
             }

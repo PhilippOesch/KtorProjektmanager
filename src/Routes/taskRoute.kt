@@ -1,5 +1,6 @@
 package com.example.Routes
 
+import com.example.database.DatabaseObject
 import com.example.models.MySession
 import com.example.models.Tasks
 import com.example.models.Users
@@ -25,17 +26,7 @@ fun Routing.task() {
                 val id = call.parameters["id"]!!.toInt()
                 val post = call.receiveParameters()
                 if (session != null) {
-                    /*       transaction {
-                               Users.update({ Users.email eq id }) {
-                                   it[name] = post["fullname"].toString()
-                                   it[biography] = post["biography"].toString()
-                               }
-                           }*/
-                    transaction {
-                        Tasks.update({ Tasks.id eq id }) {
-                            it[description] = post["description"].toString()
-                        }
-                    }
+                    DatabaseObject.updateTaskDescription(id, post["description"].toString())
                     call.respondRedirect("/project/${post["pId"].toString()}", permanent = true)
                 }
 
@@ -51,11 +42,7 @@ fun Routing.task() {
                 val post = call.receiveParameters()
 
                 if (session != null) {
-                    transaction {
-                        Tasks.update({ Tasks.id eq id}){
-                            it[status] = newstatus
-                        }
-                    }
+                    DatabaseObject.updateTaskStatus(id, newstatus)
                 }
 
                 call.respondRedirect("/project/${post["pId"].toString()}", permanent = true)

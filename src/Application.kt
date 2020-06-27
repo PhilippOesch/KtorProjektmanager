@@ -2,6 +2,7 @@ package com.example
 
 
 import com.example.Routes.*
+import com.example.database.DatabaseObject
 import com.example.database.config
 import com.example.general.SaltHash
 import com.example.general.hexStringToByteArray
@@ -48,9 +49,12 @@ fun Application.module(testing: Boolean = false) {
             skipWhen { call -> call.sessions.get<MySession>() != null }
             userParamName = "email"
             passwordParamName = "password"
-            challenge {
-
-                call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
+            challenge {credentials ->
+                if (credentials?.name!= null){
+                    call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
+                } else {
+                    call.respond(FreeMarkerContent("login.ftl", null))
+                }
             }
             validate { credentials ->
                 try {
@@ -81,18 +85,7 @@ fun Application.module(testing: Boolean = false) {
     }
 */
 
-    val dataSource = HikariDataSource(config)
-    Database.connect(
-        dataSource
-    )
-    transaction {
-        SchemaUtils.create(Users)
-        SchemaUtils.create(Projects)
-        SchemaUtils.create(ProjectUsers)
-        SchemaUtils.create(Tasks)
-        SchemaUtils.create(TasksUser)
-    }
-
+    DatabaseObject.init() //init Database
     routing {
 
         // defining a folder with static files
