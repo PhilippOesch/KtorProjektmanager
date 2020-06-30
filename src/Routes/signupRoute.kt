@@ -3,6 +3,7 @@ package com.example.Routes
 import com.example.database.DatabaseObject
 import com.example.general.SaltHash
 import com.example.general.toHexString
+import com.example.models.User
 import com.example.models.Users
 import io.ktor.application.call
 import io.ktor.freemarker.FreeMarkerContent
@@ -25,7 +26,7 @@ fun Routing.signup(){
         }
         post{
             val post = call.receiveParameters()
-            val user= DatabaseObject.getUser(post["email"].toString());
+            val user: User? = DatabaseObject.getUser(post["email"].toString());
 
             if(user!= null){
                 call.respond(
