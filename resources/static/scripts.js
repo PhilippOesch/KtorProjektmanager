@@ -47,6 +47,13 @@ function openTaskOverlay(evt){
     let description= infoelement.querySelector("span[name= description]").innerHTML;
     let pid= infoelement.querySelector("span[name= pid]").innerHTML;
     let status= infoelement.querySelector("span[name= status]").innerHTML;
+
+    let taskUseremails= [];
+    infoelement.querySelectorAll(".task-users li").forEach(value=>{
+        taskUseremails.push(value.innerHTML);
+    })
+
+    console.log(taskUseremails);
     console.log(id);
     console.log(name);
     console.log(description);
@@ -70,6 +77,21 @@ function openTaskOverlay(evt){
         formEndTask.style.display= "none";
         formOpenTask.style.display= "none";
     }
+
+    let overlayTaskuserElements= taskOverlayContent.querySelectorAll("input[type= checkbox]");
+    overlayTaskuserElements.forEach(value=>{
+        value.checked= false
+    })
+
+    taskUseremails.forEach((email) =>{
+        overlayTaskuserElements.forEach((value)=>{
+            if(value.value== email){
+                value.checked= true;
+            } else {
+
+            }
+        })
+    })
 
     taskOverlayContent.querySelector(".taskname").innerHTML= name;
     taskOverlayContent.querySelector("input[name= pId]").value= pid;
