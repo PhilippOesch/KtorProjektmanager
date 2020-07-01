@@ -98,11 +98,14 @@ object DatabaseObject {
         }
     }
 
-    fun getUser(email: String): User {
+    fun getUser(email: String): User? {
         val users = transaction {
             Users.select { Users.email eq email }.map { Users.toUser(it) }
         }
 
+        if (users.isEmpty()) {
+            return null
+        }
         return users.first()
     }
 
@@ -155,4 +158,20 @@ object DatabaseObject {
                 additionalConstraint = { TasksUsers.taskId eq taskID }).selectAll().map { Users.toUser(it) }
         }
     }
+
+    fun addTaskUser(taskID: Int, userId: String) {
+        transaction {
+            TasksUsers.insert {
+                it[taskId] = taskID
+                it[TasksUsers.userId] = userId
+            }
+        }
+    }
+
+    fun deleteTaskUser(taskID: Int, userId: String){
+        transaction {
+            TasksUsers.deleteWhere{ TasksUsers.taskId eq taskID and (TasksUsers.userId eq userId)}
+        }
+    }
+
 }

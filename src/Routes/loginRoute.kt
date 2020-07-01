@@ -26,8 +26,10 @@ fun Routing.login(){
                 val principal = call.principal<UserIdPrincipal>() ?: error("No principal")
 
                 val user= DatabaseObject.getUser(principal.name)
-                call.sessions.set("SESSION", MySession(user.name, user.email))
-                call.respondRedirect("/", permanent = false)
+                if(user!= null) {
+                    call.sessions.set("SESSION", MySession(user.name, user.email))
+                    call.respondRedirect("/", permanent = false)
+                }
             }
         }
 

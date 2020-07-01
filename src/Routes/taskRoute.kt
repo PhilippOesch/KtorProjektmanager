@@ -22,9 +22,21 @@ fun Routing.task() {
         route("/task/{id}"){
             post {
                 val session = call.sessions.get<MySession>()
-
                 val id = call.parameters["id"]!!.toInt()
+
                 val post = call.receiveParameters()
+                val projectUsers= DatabaseObject.getProjectUsers(post["pId"]!!.toInt())
+                val taskUsers= DatabaseObject.getTasksUsers(id)
+
+                for (user in projectUsers){
+                    var hasUser= taskUsers.find { it.email == user.email }
+                    if(hasUser == null && post["${user.email}"].toString()== "on"){
+                        DatabaseObject.addTaskUser(id, user.email)
+                    } else if(hasUser!= null && post["${user.email}"].toString()== "null"){
+                        DatabaseObject.deleteTaskUser(id, user.email)
+                    }
+                }
+
                 if (session != null) {
                     DatabaseObject.updateTaskDescription(id, post["description"].toString())
                     call.respondRedirect("/project/${post["pId"].toString()}", permanent = true)

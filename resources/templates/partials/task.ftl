@@ -7,9 +7,9 @@
         <span name="pid">${project.id}</span>
         <span name="status">${task.task.status}</span>
         <#if task.users??>
-            <ul>
+            <ul class="task-users">
                 <#list task.users as user>
-                    <li>${user.name}</li>
+                    <li class="${user.email}">${user.email}</li>
                 </#list>
             </ul>
         </#if>

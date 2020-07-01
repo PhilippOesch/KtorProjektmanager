@@ -5,15 +5,19 @@
             <h1 class="taskname">Test</h1>
             <#--    <p class="taskdescription">Test</p>-->
 
-            <p>
-                zugewiesene Nutzer:
-            </p>
-
             <hr>
             <form action="/test" method="post" enctype="application/x-www-form-urlencoded" id="changeTask">
                 <div class="form-group">
                     <label>Beschreibung:</label>
                     <textarea form="changeTask" type="text" name="description"></textarea>
+                </div>
+                <div class="add-user-to-task">
+                    <label>Nutzer zuweisen:</label>
+                    <hr>
+                    <#list users as user>
+                        <input type="checkbox" id="${user.email}" name="${user.email}" value="${user.email}">
+                        <label for="${user.email}">${user.name}</label><br>
+                    </#list>
                 </div>
                 <input type="text" class="project-Id" name="pId" value=""/>
                 <input type="submit" value="Änderungen Speichern"/>
