@@ -1,14 +1,13 @@
 package com.example.models
 
 import com.example.enums.TaskStatus
-import com.example.models.Projects.autoIncrement
-import com.example.models.Tasks.autoIncrement
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
+import java.sql.Timestamp
 import java.time.LocalDate
+import java.util.*
 
 
 data class MySession(val name: String, val email: String)
@@ -25,16 +24,18 @@ data class TaskWithUsers(val task: Task, val users: List<User>?)
 
 data class TaskUser(val id: Int, val taskId: Int, val userId: String)
 
+data class ProjectFile(val id: Int, val filename: String, val originalFilename: String, val pid: Int, val userId: String, val lastUpdate: Timestamp)
+
 data class AuthObject(val password: String, val salt: String)
 
-object Users: Table(){
+object Users : Table() {
     val email: Column<String> = varchar("email", 50)
     val name: Column<String> = varchar("name", 100)
     val biography: Column<String> = varchar("biography", 500)
     val salt: Column<String> = varchar("salt", 20)
     val password: Column<String> = varchar("password", 100)
 
-    override val primaryKey= PrimaryKey(email, name="PK_User_ID");
+    override val primaryKey = PrimaryKey(email, name = "PK_User_ID");
 
     fun toUser(row: ResultRow): User =
         User(
@@ -50,24 +51,24 @@ object Users: Table(){
         )
 }
 
-object Projects: Table(){
+object Projects : Table() {
     val id: Column<Int> = integer("id").autoIncrement()
     val name: Column<String> = varchar("name", 50)
     val description: Column<String> = varchar("description", 500)
     val deadline: Column<String?> = varchar("deadline", 500).nullable()
 
-    override val primaryKey= PrimaryKey(Projects.id, name="PK_Project_ID");
+    override val primaryKey = PrimaryKey(Projects.id, name = "PK_Project_ID");
 
     fun toProject(row: ResultRow): Project =
         Project(
             id = row[id],
             name = row[name],
             description = row[description],
-            deadline = if(row[deadline]!= null) LocalDate.parse(row[deadline]) else null
+            deadline = if (row[deadline] != null) LocalDate.parse(row[deadline]) else null
         )
 }
 
-object ProjectUsers: IntIdTable(){
+object ProjectUsers : IntIdTable() {
     val projectId: Column<Int> = integer("pId").references(Projects.id)
     val userId: Column<String> = varchar("userId", 50).references(Users.email)
 
@@ -78,17 +79,17 @@ object ProjectUsers: IntIdTable(){
         )
 }
 
-object Tasks: Table(){
+object Tasks : Table() {
     val id: Column<Int> = integer("id").autoIncrement()
     val name: Column<String> = varchar("name", 50)
     val status: Column<String> = varchar("status", 50)
     val description: Column<String> = varchar("beschreibung", 200)
     val pid: Column<Int> = integer("pId").references(Projects.id)
 
-    override val primaryKey= PrimaryKey(Tasks.id, name="PK_Task_ID");
+    override val primaryKey = PrimaryKey(Tasks.id, name = "PK_Task_ID");
 
     fun toTask(row: ResultRow): Task {
-        var thestatus= when(row[status]){
+        var thestatus = when (row[status]) {
             "OPEN" -> TaskStatus.OPEN
             "INWORK" -> TaskStatus.INWORK
             "COMPLETED" -> TaskStatus.COMPLETED
@@ -105,10 +106,12 @@ object Tasks: Table(){
     }
 }
 
-object TasksUsers: Table(){
+object TasksUsers : Table() {
     val id: Column<Int> = integer("id").autoIncrement()
     val taskId: Column<Int> = integer("taskid").references(Tasks.id)
     val userId: Column<String> = varchar("userid", 50).references(Users.email)
+
+    override val primaryKey = PrimaryKey(Tasks.id, name = "PK_TaskUser_ID");
 
     fun toTaskUser(row: ResultRow): TaskUser =
         TaskUser(
@@ -116,6 +119,25 @@ object TasksUsers: Table(){
             taskId = row[taskId],
             userId = row[userId]
         )
+}
 
-    override val primaryKey= PrimaryKey(Tasks.id, name="PK_TaskUser_ID");
+object Files: Table() {
+    val id: Column<Int> = integer("id").autoIncrement()
+    val filename: Column<String> = varchar("filename", 300)
+    val originalfilename: Column<String> = varchar("originalFilename", 300)
+    val projectId: Column<Int> = integer("projectId").references(Projects.id)
+    val userId: Column<String> = varchar("userId", 50).references(Users.email)
+    val lastUpdate: Column<String> = varchar("updateDate", 200)
+
+    override val primaryKey = PrimaryKey(Tasks.id, name = "PK_File_ID");
+
+    fun toFile(row: ResultRow): ProjectFile =
+        ProjectFile(
+            id = row[id],
+            filename = row[filename],
+            originalFilename = row[originalfilename],
+            pid = row[projectId],
+            userId = row[userId],
+            lastUpdate = Timestamp(row[lastUpdate].toLong())
+        )
 }

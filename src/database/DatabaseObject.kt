@@ -5,9 +5,11 @@ import com.example.general.SaltHash
 import com.example.general.toHexString
 import com.example.models.*
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.html.InputType
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 object DatabaseObject {
     fun init() {
@@ -21,6 +23,7 @@ object DatabaseObject {
             SchemaUtils.create(ProjectUsers)
             SchemaUtils.create(Tasks)
             SchemaUtils.create(TasksUsers)
+            SchemaUtils.create(Files)
         }
     }
 
@@ -174,4 +177,21 @@ object DatabaseObject {
         }
     }
 
+    fun addFile(pID: Int, userId: String, filename: String, originalFileName: String, timestamp: Long){
+        transaction {
+            Files.insert {
+                it[Files.filename]= filename
+                it[originalfilename]= originalFileName
+                it[projectId]= pID
+                it[Files.userId]= userId
+                it[lastUpdate]= timestamp.toString()
+            }
+        }
+    }
+
+    fun getProjectFiles(pid: Int): List<ProjectFile> {
+        return transaction {
+            Files.select { Files.projectId eq pid }.map{ Files.toFile(it) }
+        }
+    }
 }

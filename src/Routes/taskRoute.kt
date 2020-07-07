@@ -29,8 +29,10 @@ fun Routing.task() {
                 val taskUsers= DatabaseObject.getTasksUsers(id)
 
                 for (user in projectUsers){
+                    println(post["${user.email}"].toString())
                     var hasUser= taskUsers.find { it.email == user.email }
-                    if(hasUser == null && post["${user.email}"].toString()== "on"){
+                    println(hasUser)
+                    if(hasUser == null && post["${user.email}"].toString()== user.email){
                         DatabaseObject.addTaskUser(id, user.email)
                     } else if(hasUser!= null && post["${user.email}"].toString()== "null"){
                         DatabaseObject.deleteTaskUser(id, user.email)

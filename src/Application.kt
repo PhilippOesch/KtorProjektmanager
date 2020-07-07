@@ -24,6 +24,8 @@ import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import user
+import java.io.File
+import java.io.IOException
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -84,6 +86,11 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 */
+    //Upload Ordner
+    val uploadDir = File("/uploads")
+    if (!uploadDir.mkdirs() && !uploadDir.exists()) {
+        throw IOException("Failed to create directory ${uploadDir.absolutePath}")
+    }
 
     DatabaseObject.init() //init Database
     routing {

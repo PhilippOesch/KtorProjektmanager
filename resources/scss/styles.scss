@@ -239,7 +239,7 @@ nav {
     margin-bottom: 1rem;
     position: relative;
 
-    .tab {
+    .tabbutton {
       display: inline-block;
       border-radius: 10px 10px 0px 0px;
       margin: 0;
@@ -491,4 +491,26 @@ form {
   .display-none {
     display: none;
   }
+}
+
+.btn-wide{
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+  display: block;
+  border: 1px solid rgba($box-shadow-color, 0.3);
+  border-radius: 5px;
+  font-size: 14pt;
+  width: 100%;
+  @include boxshadow(1px 3px 16px 0px rgba($box-shadow-color, 0.15));
+  @include transition(all $transition-time);
+  margin-bottom: 0.5rem;
+
+  &:hover{
+    background-color: rgba(#888888, 0.2);
+    cursor: pointer;
+  }
+}
+
+#file-tab{
+  display: none;
 }
