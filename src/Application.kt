@@ -6,6 +6,7 @@ import com.example.database.DatabaseObject
 import com.example.database.config
 import com.example.general.SaltHash
 import com.example.general.hexStringToByteArray
+import com.example.general.loginform
 import com.example.models.*
 import io.ktor.application.*
 import io.ktor.response.*
@@ -47,45 +48,9 @@ fun Application.module(testing: Boolean = false) {
 
     //Authentication Feature
     install(Authentication) {
-        form("login") {
-            skipWhen { call -> call.sessions.get<MySession>() != null }
-            userParamName = "email"
-            passwordParamName = "password"
-            challenge {credentials ->
-                if (credentials?.name!= null){
-                    call.respond(FreeMarkerContent("login.ftl", mapOf("error" to "Invalid login")))
-                } else {
-                    call.respond(FreeMarkerContent("login.ftl", null))
-                }
-            }
-            validate { credentials ->
-                try {
-                    val users = transaction {
-                        Users.select { Users.email eq credentials.name }.map { Users.toAuth(it) }
-                    }
-
-                    val thishash =
-                        SaltHash.generateHash(credentials.password, users.first().salt.hexStringToByteArray())
-/*                println(thishash)
-                println(users.first().password)*/
-                    if (thishash == users.first().password) {
-                        UserIdPrincipal(credentials.name)
-                    } else {
-                        null
-                    }
-                } catch (ex: NoSuchElementException) /* catches Exception when there is no entry for this email */ {
-                    null
-                }
-            }
-        }
+        this.loginform()
     }
 
-/*
-    install(ContentNegotiation) {
-        gson {
-        }
-    }
-*/
     //Upload Ordner
     val uploadDir = File("/uploads")
     if (!uploadDir.mkdirs() && !uploadDir.exists()) {
@@ -108,6 +73,9 @@ fun Application.module(testing: Boolean = false) {
         this.logout()
         this.createProjekt()
         this.project()
+        this.projectFiles()
+        this.projectSettings()
+        this.projectMessages()
         this.task()
 
         //Exceptionhandling

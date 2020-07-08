@@ -1,4 +1,4 @@
-<div class="task" onclick="openTaskOverlay(this)">
+<div id="task${task.task.id}" class="task" onclick="openTaskOverlay(this)">
     ${task.task.name}
     <div class="information">
         <span name="id">${task.task.id}</span>

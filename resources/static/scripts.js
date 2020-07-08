@@ -2,21 +2,6 @@ let showProfilInfo= document.querySelector(".show-profil-info");
 let closeInfo= document.querySelector(".close-info");
 let profilInfo= document.querySelector(".profil-info");
 
-let activateSettingsTab= document.querySelector("#einstellungen-tab-button");
-let activateTaskTab= document.querySelector("#task-tab-button");
-let activateFileTab= document.querySelector("#file-tab-button");
-
-let settingsTab= document.querySelector("#einstellung-tab");
-let taskTab= document.querySelector("#task-tab");
-let fileTab= document.querySelector("#file-tab");
-
-let tabbuttons= document.querySelectorAll(".tabbutton");
-let projectTabs= document.querySelectorAll(".project-tab")
-
-tabbuttons.forEach(value=>{
-    value.addEventListener("click", changeProjectTab);
-});
-
 showProfilInfo.addEventListener("click", function() {
     profilInfo.style.display= "block";
 });
@@ -24,21 +9,6 @@ showProfilInfo.addEventListener("click", function() {
 closeInfo.addEventListener("click", function () {
     profilInfo.style.display= "none";
 });
-
-function changeProjectTab(_evt){
-    let index= _evt.target.getAttribute("value");
-    for(let i= 0; i< tabbuttons.length; i++){
-        let indexTab= projectTabs.item(i);
-        let indexButton= tabbuttons.item(i);
-        if(index == i){
-            indexTab.style.display= "block";
-            indexButton.classList.add("active");
-        } else {
-            indexTab.style.display= "none";
-            indexButton.classList.remove("active");
-        }
-    }
-}
 
 
 let taskOverlay= document.querySelector(".overlay-task-container");

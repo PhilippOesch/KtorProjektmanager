@@ -37,7 +37,6 @@ fun Routing.project() {
                 val project= DatabaseObject.getProject(id)
                 val users = DatabaseObject.getProjectUsers(id)
                 val tasks = DatabaseObject.getProjectTasks(id)
-                val files = DatabaseObject.getProjectFiles(id)
 
                 val taskWithUsers = mutableListOf<TaskWithUsers>()
                 if(tasks.isNotEmpty()){
@@ -50,7 +49,7 @@ fun Routing.project() {
                 }
 
                 if (session != null && tasks.isNotEmpty()) {
-                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users, "tasks" to taskWithUsers, "files" to files)))
+                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users, "tasks" to taskWithUsers)))
                 } else if(session != null){
                     call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users)))
                 }
@@ -87,54 +86,5 @@ fun Routing.project() {
             }
         }
 
-        route("/project/{id}/upload"){
-            post{
-                val session = call.sessions.get<MySession>()
-                val pid = call.parameters["id"]!!.toInt()
-
-                if(session!= null) {
-                    var filename= ""
-                    val timestamp= System.currentTimeMillis()
-                    var originalFileName= ""
-
-                    val multipart = call.receiveMultipart()
-                    multipart.forEachPart { part ->
-                        // if part is a file (could be form item)
-                        if (part is PartData.FileItem) {
-                            // retrieve file name of upload
-                            originalFileName= part.originalFileName!!
-                            filename= "${timestamp}_${pid}_${originalFileName}";
-                            val file = File("/uploads/${filename}")
-
-                            // use InputStream from part to save file
-                            part.streamProvider().use { its ->
-                                // copy the stream to the file with buffering
-                                file.outputStream().buffered().use {
-                                    // note that this is blocking
-                                    its.copyTo(it)
-                                }
-                            }
-                        }
-                        // make sure to dispose of the part after use to prevent leaks
-                        part.dispose()
-                    }
-                    DatabaseObject.addFile(pid, session.email, filename, originalFileName, timestamp)
-
-                    call.respondRedirect("/project/${pid}", permanent = true)
-                }
-            }
-        }
-
-        get("/project/{id}/{filename}"){
-            val filename = call.parameters["filename"]!!
-            val pid = call.parameters["id"]!!
-
-            val file = File("/uploads/$filename")
-            if(file.exists()) {
-                call.respondFile(file)
-            }
-            else call.respond(HttpStatusCode.NotFound)
-
-        }
     }
 }

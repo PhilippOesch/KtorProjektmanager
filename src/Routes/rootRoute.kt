@@ -3,9 +3,6 @@ package com.example.Routes
 import com.example.AuthorizationException
 import com.example.database.DatabaseObject
 import com.example.models.MySession
-import com.example.models.ProjectUsers
-import com.example.models.Projects
-import com.example.models.Users
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.freemarker.FreeMarkerContent
@@ -25,10 +22,11 @@ fun Routing.root() {
 
             if (session != null) {
                 val projects= DatabaseObject.getUsersProjects(session.email);
+                val tasks = DatabaseObject.getUserTasks(session.email);
 
                 println(session.name);
                 //call.respondText("models.kt.User is logged", null)
-                call.respond(FreeMarkerContent("index.ftl", mapOf("data" to session, "projects" to projects)))
+                call.respond(FreeMarkerContent("index.ftl", mapOf("data" to session, "projects" to projects, "tasks" to tasks)))
             } else {
                 throw AuthorizationException()
             }

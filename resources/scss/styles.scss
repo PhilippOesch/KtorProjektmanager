@@ -244,6 +244,7 @@ nav {
       border-radius: 10px 10px 0px 0px;
       margin: 0;
       padding: 1rem 2rem;
+      text-decoration: none;
       color: rgba($font-color, 0.6);
       @include transition(all $transition-time);
 
@@ -261,10 +262,6 @@ nav {
 
   .site-title {
     text-align: center;
-  }
-
-  #einstellung-tab {
-    display: none;
   }
 
   #task-tab {
@@ -339,7 +336,7 @@ nav {
       padding: 1rem 2rem;
       border-radius: 5px;
       max-width: 700px;
-      margin: 6rem auto 0 auto;
+      margin: 2rem auto 0 auto;
       background-color: white;
 
       .project-Id{
@@ -511,6 +508,54 @@ form {
   }
 }
 
-#file-tab{
-  display: none;
+.user-task{
+  text-decoration: none;
+}
+
+.select-file{
+  padding: 1rem 2rem;
+  @include boxshadow(1px 3px 16px 0px rgba($box-shadow-color, 0.15));
+  @include transition(all $transition-time);
+}
+
+#user-tasks{
+  margin-top: 4rem;
+}
+
+#messages-tab{
+  margin-top: 2rem;
+}
+
+.add-padding{
+  margin-top: 4rem;
+}
+
+.messages-container{
+  @include boxshadow(1px 3px 16px 0px rgba($box-shadow-color, 0.15));
+  border: 1px solid rgba($box-shadow-color, 0.3);
+  border-radius: 10px;
+
+  .message{
+    position: relative;
+    padding: 0.5rem 2rem;
+    border-bottom: 2px solid rgba($box-shadow-color, 0.3);
+
+    &:last-child{
+      border-bottom: none;
+    }
+
+    .message-datum{
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+    }
+
+    .message-text{
+      margin-top: 0;
+    }
+
+    .message-user-name{
+      margin-bottom: 0.5rem;
+    }
+  }
 }

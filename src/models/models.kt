@@ -1,6 +1,7 @@
 package com.example.models
 
 import com.example.enums.TaskStatus
+import com.example.models.Files.autoIncrement
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ResultRow
@@ -18,13 +19,17 @@ data class Project(val id: Int, val name: String, val description: String, val d
 
 data class ProjectUser(val projectId: Int, val userId: String)
 
-data class Task(val id: Int, val name: String, val description: String, val pId: Int, val status: TaskStatus)
+data class Task(val id: Int, val name: String, val description: String, val pid: Int, val status: TaskStatus)
 
 data class TaskWithUsers(val task: Task, val users: List<User>?)
 
 data class TaskUser(val id: Int, val taskId: Int, val userId: String)
 
 data class ProjectFile(val id: Int, val filename: String, val originalFilename: String, val pid: Int, val userId: String, val lastUpdate: Timestamp)
+
+data class Message(val id: Int, val text: String, val pid: Int, val userId: String, val timestamp: Timestamp)
+
+data class MessageWithUser(val message: Message, val user: User)
 
 data class AuthObject(val password: String, val salt: String)
 
@@ -100,7 +105,7 @@ object Tasks : Table() {
             id = row[id],
             name = row[name],
             description = row[description],
-            pId = row[pid],
+            pid = row[pid],
             status = thestatus
         )
     }
@@ -111,7 +116,7 @@ object TasksUsers : Table() {
     val taskId: Column<Int> = integer("taskid").references(Tasks.id)
     val userId: Column<String> = varchar("userid", 50).references(Users.email)
 
-    override val primaryKey = PrimaryKey(Tasks.id, name = "PK_TaskUser_ID");
+    override val primaryKey = PrimaryKey(TasksUsers.id, name = "PK_TaskUser_ID");
 
     fun toTaskUser(row: ResultRow): TaskUser =
         TaskUser(
@@ -127,9 +132,9 @@ object Files: Table() {
     val originalfilename: Column<String> = varchar("originalFilename", 300)
     val projectId: Column<Int> = integer("projectId").references(Projects.id)
     val userId: Column<String> = varchar("userId", 50).references(Users.email)
-    val lastUpdate: Column<String> = varchar("updateDate", 200)
+    val lastUpdate: Column<Long> = long("updateDate")
 
-    override val primaryKey = PrimaryKey(Tasks.id, name = "PK_File_ID");
+    override val primaryKey = PrimaryKey(Files.id, name = "PK_File_ID");
 
     fun toFile(row: ResultRow): ProjectFile =
         ProjectFile(
@@ -138,6 +143,25 @@ object Files: Table() {
             originalFilename = row[originalfilename],
             pid = row[projectId],
             userId = row[userId],
-            lastUpdate = Timestamp(row[lastUpdate].toLong())
+            lastUpdate = Timestamp(row[lastUpdate])
+        )
+}
+
+object Messages: Table() {
+    val id: Column<Int> = integer("id").autoIncrement()
+    val text: Column<String> = varchar("text", 500)
+    val pid: Column<Int> = integer("pid").references(Projects.id)
+    val userId: Column<String> = varchar("userId", 50).references(Users.email)
+    val timestamp: Column<Long> = long("timestamp")
+
+    override val primaryKey = PrimaryKey(Messages.id, name = "PK_Messages_ID");
+
+    fun toMessage(row: ResultRow): Message =
+        Message(
+            id= row[id],
+            text= row[text],
+            pid= row[pid],
+            userId = row[userId],
+            timestamp = Timestamp(row[timestamp])
         )
 }

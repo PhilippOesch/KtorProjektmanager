@@ -23,16 +23,14 @@
                 </div>
             </a>
         </#list>
-<#--        <a class="projekt-link">
-            <div class="projekt-item">
-                <h2>Projekt 1</h2>
-            </div>
-        </a>
-        <a class="projekt-link">
-            <div class="projekt-item">
-                <h2>Projekt 2</h2>
-            </div>
-        </a>-->
+    </div>
+    <div id="user-tasks">
+        <h1>Dir zugeteteilte Aufgaben</h1>
+        <#if tasks??>
+        <#list tasks as task>
+            <a class="btn-wide user-task" href="/project/${task.pid}#task${task.id}">${task.name}</a>
+        </#list>
+        </#if>
     </div>
 </div>
 <script src="/static/scripts.js"></script>

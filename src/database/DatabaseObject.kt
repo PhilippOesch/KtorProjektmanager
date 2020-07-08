@@ -24,6 +24,7 @@ object DatabaseObject {
             SchemaUtils.create(Tasks)
             SchemaUtils.create(TasksUsers)
             SchemaUtils.create(Files)
+            SchemaUtils.create(Messages)
         }
     }
 
@@ -184,7 +185,7 @@ object DatabaseObject {
                 it[originalfilename]= originalFileName
                 it[projectId]= pID
                 it[Files.userId]= userId
-                it[lastUpdate]= timestamp.toString()
+                it[lastUpdate]= timestamp
             }
         }
     }
@@ -192,6 +193,48 @@ object DatabaseObject {
     fun getProjectFiles(pid: Int): List<ProjectFile> {
         return transaction {
             Files.select { Files.projectId eq pid }.map{ Files.toFile(it) }
+        }
+    }
+
+    fun getUserTasks(userId: String): List<Task> {
+        return transaction {
+            TasksUsers.join(
+                Tasks,
+                JoinType.INNER,
+                additionalConstraint = { TasksUsers.userId eq userId }).selectAll().map { Tasks.toTask(it) }
+        }
+    }
+
+    fun getFile(filename: String): ProjectFile {
+        val files= transaction {
+            Files.select { Files.filename eq filename }.map { Files.toFile(it) }
+        }
+
+        return files.first()
+    }
+
+    fun getProjectMessages(projectId: Int): List<MessageWithUser>{
+        return transaction {
+            Messages.join(
+                Users,
+                JoinType.INNER,
+                additionalConstraint = { Messages.pid eq projectId }).selectAll().orderBy(Messages.timestamp to SortOrder.DESC).map {
+                    val user= Users.toUser(it)
+                    val message= Messages.toMessage(it)
+
+                    MessageWithUser(message, user)
+                }
+        }
+    }
+
+    fun createMessage(projectId: Int, userId: String, text: String, timestamp: Long){
+        transaction {
+            Messages.insert {
+                it[pid]= projectId
+                it[Messages.userId]= userId
+                it[Messages.text]= text
+                it[Messages.timestamp]= timestamp
+            }
         }
     }
 }
