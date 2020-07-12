@@ -28,11 +28,12 @@ fun Routing.projectFiles(){
             get {
                 val session = call.sessions.get<MySession>()
                 val id = call.parameters["id"]!!.toInt()
+                val site = call.parameters["param2"]
                 val project= DatabaseObject.getProject(id)
                 val files = DatabaseObject.getProjectFiles(id)
 
                 if (session != null){
-                    call.respond(FreeMarkerContent("projectFiles.ftl", mapOf("project" to project,"data" to session,"files" to files)))
+                    call.respond(FreeMarkerContent("projectFiles.ftl", mapOf("project" to project,"data" to session,"files" to files, "site" to "files")))
                 }
             }
         }

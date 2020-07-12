@@ -26,7 +26,7 @@ fun Routing.projectSettings(){
                 val users = DatabaseObject.getProjectUsers(id)
 
                 if (session != null) {
-                    call.respond(FreeMarkerContent("projectSettings.ftl", mapOf("data" to session, "project" to project, "users" to users)))
+                    call.respond(FreeMarkerContent("projectSettings.ftl", mapOf("data" to session, "project" to project, "users" to users, "site" to "settings")))
                 }
             }
 

@@ -24,7 +24,7 @@
         <hr>
 
         <h2>Person hinzufügen</h2>
-        <form action="/project/${project.id}/settings" method="post" enctype="application/x-www-form-urlencoded">
+        <form autocomplete="off" action="/project/${project.id}/settings" method="post" enctype="application/x-www-form-urlencoded">
             <div class="project-form-group">
                 <input type="text" name="email" placeholder="Email" required/>
                 <input class="add-user" type="submit" value="+"/>

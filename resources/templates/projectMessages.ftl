@@ -11,7 +11,7 @@
     <div id="messages-tab">
         <h3>Nachricht erstellen</h3>
         <hr>
-        <form id="createMessageForm" action="/project/${project.id}/messages" method="post" enctype="application/x-www-form-urlencoded">
+        <form autocomplete="off" id="createMessageForm" action="/project/${project.id}/messages" method="post" enctype="application/x-www-form-urlencoded">
             <div class="form-group">
                 <textarea form="createMessageForm" type="text" name="text" required></textarea>
             </div>

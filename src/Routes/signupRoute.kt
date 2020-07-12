@@ -19,24 +19,29 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @ExperimentalStdlibApi
-fun Routing.signup(){
-    route("/signup"){
+fun Routing.signup() {
+    route("/signup") {
         get {
             call.respond(FreeMarkerContent("signup.ftl", null))
         }
-        post{
+        post {
             val post = call.receiveParameters()
             val user: User? = DatabaseObject.getUser(post["email"].toString());
+            val password = post["password"].toString();
 
-            if(user!= null){
+            if (user != null) {
                 call.respond(
                     FreeMarkerContent(
                         "signup.ftl",
                         mapOf("error" to "Email ist bereits vorhanden")
                     )
                 )
-            } else if(post["password"]!= null && post["password"]== post["confirmPassword"]){
-                DatabaseObject.createUser(post["email"].toString(), post["name"].toString(), post["password"].toString())
+            } else if (password != "" && post["password"] == post["confirmPassword"]) {
+                DatabaseObject.createUser(
+                    post["email"].toString(),
+                    post["name"].toString(),
+                    post["password"].toString()
+                )
 
                 call.respondRedirect("/login", permanent = true)
             } else {

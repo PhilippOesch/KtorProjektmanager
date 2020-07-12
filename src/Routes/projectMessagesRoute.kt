@@ -23,13 +23,12 @@ fun Routing.projectMessages() {
                 val id = call.parameters["id"]!!.toInt()
                 val project = DatabaseObject.getProject(id)
                 val messages = DatabaseObject.getProjectMessages(id)
-                val site= call.request.queryParameters["param2"]
 
                 if (session != null) {
                     call.respond(
                         FreeMarkerContent(
                             "projectMessages.ftl",
-                            mapOf("project" to project, "data" to session, "messages" to messages, "site" to site)
+                            mapOf("project" to project, "data" to session, "messages" to messages, "site" to "messages")
                         )
                     )
 

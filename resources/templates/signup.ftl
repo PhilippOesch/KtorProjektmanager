@@ -9,7 +9,7 @@
         <p style="color:red;">${error}</p>
     </#if>
     <h1>Registrierung</h1>
-    <form action="/signup" method="post" enctype="application/x-www-form-urlencoded">
+    <form autocomplete="off" action="/signup" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
             <label>Email:</label>
             <input type="email" name="email"/>

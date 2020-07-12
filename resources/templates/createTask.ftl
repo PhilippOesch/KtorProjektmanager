@@ -8,7 +8,7 @@
 <body>
 <div class="container form-container">
     <h1>Aufgabe erstellen</h1>
-    <form action="/project/${projectId}/createtask" method="post" enctype="application/x-www-form-urlencoded" id="createTaskFrom">
+    <form autocomplete="off" action="/project/${projectId}/createtask" method="post" enctype="application/x-www-form-urlencoded" id="createTaskFrom">
         <div class="form-group">
             <label>Name:</label>
             <input type="text" name="name" required/>

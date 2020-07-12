@@ -10,7 +10,7 @@
     <#if error??>
         <p style="color:red;">${error}</p>
     </#if>
-    <form action="/createProjekt" method="post" enctype="application/x-www-form-urlencoded" id="createProjectFrom">
+    <form autocomplete="off" action="/createProjekt" method="post" enctype="application/x-www-form-urlencoded" id="createProjectFrom">
         <div class="form-group">
             <label>Name:</label>
             <input type="text" name="name" required/>

@@ -9,7 +9,7 @@
     <#if error??>
         <p style="color:red;">${error}</p>
     </#if>
-    <form action="/login" method="post" enctype="application/x-www-form-urlencoded">
+    <form autocomplete="off" action="/login" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
             <label>Email:</label>
             <input type="text" name="email" required/>

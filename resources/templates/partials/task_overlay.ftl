@@ -6,7 +6,7 @@
             <#--    <p class="taskdescription">Test</p>-->
 
             <hr>
-            <form action="/test" method="post" enctype="application/x-www-form-urlencoded" id="changeTask">
+            <form autocomplete="off" action="/test" method="post" enctype="application/x-www-form-urlencoded" id="changeTask">
                 <div class="form-group">
                     <label>Beschreibung:</label>
                     <textarea form="changeTask" type="text" name="description"></textarea>

@@ -25,8 +25,8 @@
         </#list>
     </div>
     <div id="user-tasks">
-        <h1>Dir zugeteteilte Aufgaben</h1>
         <#if tasks??>
+        <h1>Dir zugeteteilte Aufgaben</h1>
         <#list tasks as task>
             <a class="btn-wide user-task" href="/project/${task.pid}#task${task.id}">${task.name}</a>
         </#list>

@@ -49,9 +49,9 @@ fun Routing.project() {
                 }
 
                 if (session != null && tasks.isNotEmpty()) {
-                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users, "tasks" to taskWithUsers)))
+                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users, "tasks" to taskWithUsers, "site" to "tasks")))
                 } else if(session != null){
-                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users)))
+                    call.respond(FreeMarkerContent("project.ftl", mapOf("data" to session, "project" to project, "users" to users, "site" to "tasks")))
                 }
             }
 
