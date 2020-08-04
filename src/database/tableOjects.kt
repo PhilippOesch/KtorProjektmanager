@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import java.sql.Timestamp
 import java.time.LocalDate
+import com.example.models.*
 
 object Users : Table() {
     val email: Column<String> = varchar("email", 50)
